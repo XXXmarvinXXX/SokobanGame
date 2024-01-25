@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推箱子</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/game.css">
+    <script defer src="../javascript/game.js"></script>
+    <script src="../javascript/vue.js"></script>
+    <script defer src="../JavaScript/click.js"></script>
+    <script defer src="../JavaScript/sakura.js"></script>
+</head>
+<body>
+    <nav class="topnav-wrapper middle">
+        <nav class="topnav-left">
+            <nav class="topnav-menu">
+                <ul class="line-wrapper">
+                    <li class="line"></li>
+                    <li class="line"></li>
+                    <li class="line"></li>
+                </ul>
+                <ul class="details">
+                    <li><a href="#">特讯</a></li>
+                    <li><a href="#">话题</a></li>
+                    <li><a href="#">交友</a></li>
+                    <li><a href="#">圈子</a></li>
+                    <li><a href="#">树洞</a></li>
+                </ul>
+            </nav>
+            <a class="myself" href="#">Marvin的精神小屋</a>
+        </nav>
+        <nav class="topnav-right">
+            <a href="#">主页</a>
+            <a href="#">个人介绍</a>
+            <a href="#">爱好</a>
+            <a href="#">游戏</a>
+            <a href="#">彩蛋</a>
+        </nav>
+    </nav>
+    <div id="app">
+        <div class="grade">第{{gradeNumber}}关</div>
+        <div class="container" ref="container" @keydown="handleKeydown"  tabindex="0">
+          <div v-for="(row, rowIndex) in nowGrid" :key="rowIndex" class="row-line">
+            <div v-for="(cell, cellIndex) in row" :key="cellIndex" :class="getCellClass(cell)">
+            </div>
+          </div>
+        </div>
+        <button class="reset-game">点我重置关卡</button>
+    </div>
+    <nav class="bottomnav-wapper middle">
+        <ul class="bottomnav-menu">
+            <li class="part-line">|</li>
+            <li><a href="#">服务详情</a></li>
+            <li class="part-line">|</li>
+            <li><a href="#">访客须知</a></li>
+            <li class="part-line">|</li>
+            <li><a href="#">更新日志</a></li>
+            <li class="part-line">|</li>
+            <li><a href="#">留言墙版</a></li>
+            <li class="part-line">|</li>
+            <li><a href="#">友情链接</a></li>
+            <li class="part-line">|</li>
+        </ul>
+    </nav>
+    <script>
+        const vm = new Vue({
+          el: "#app",
+          data: {
+            grid: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 3, 0, 1, 1, 1],
+            [1, 1, 1, 0, 1, 2, 1, 1, 1, 1],
+            [1, 1, 1, 0, 5, 5, 0, 1, 1, 1],
+            [1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+            [1, 1, 1, 0, 0, 2, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ],
+            nowGrid: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 3, 0, 1, 1, 1],
+            [1, 1, 1, 0, 1, 2, 1, 1, 1, 1],
+            [1, 1, 1, 0, 5, 5, 0, 1, 1, 1],
+            [1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+            [1, 1, 1, 0, 0, 2, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ],
+            playerRow: 2,
+            playerCol: 5,
+            nowPlayerRow: 2,
+            nowPlayerCol: 5,
+            gradeNumber: 1
+          },
+          methods: {
+            getCellClass(cellValue) {
+              switch (cellValue) {
+                case 0:
+                  return "ground";
+                case 1:
+                  return "obstacle";
+                case 2:
+                  return "target";
+                case 3:
+                  return "player";
+                case 4:
+                  return "player-target";
+                case 5:
+                  return "box";
+                case 6:
+                  return "box-target";
+              }
+            },
+            movePlayer(direction) {
+              const newRow = this.nowPlayerRow + direction[0];
+              const newCol = this.nowPlayerCol + direction[1];
+              const nextCell = this.nowGrid[newRow][newCol];
+              if (nextCell === 0 || nextCell === 2) {
+                if (nextCell === 2) {
+                  this.$set(this.nowGrid[newRow], newCol, 4);
+                } 
+                else if (nextCell === 0) {
+                  this.$set(this.nowGrid[newRow], newCol, 3);
+                } 
+                if (this.nowGrid[this.nowPlayerRow][this.nowPlayerCol] === 4){
+                  this.$set(this.nowGrid[this.nowPlayerRow], this.nowPlayerCol, 2);
+                }
+                else if (this.nowGrid[this.nowPlayerRow][this.nowPlayerCol] === 3){
+                  this.$set(this.nowGrid[this.nowPlayerRow], this.nowPlayerCol, 0);
+                }
+                this.nowPlayerRow = newRow;
+                this.nowPlayerCol = newCol;
+              }
+              else if (nextCell === 5 || nextCell === 6) {
+                const nextNextCell = this.nowGrid[newRow + direction[0]][newCol + direction[1]];
+                if (nextNextCell === 0 || nextNextCell === 2) {
+                  if (nextNextCell === 2){
+                    this.$set(this.nowGrid[newRow + direction[0]], newCol + direction[1], 6);
+                  }
+                  else if (nextNextCell === 0){
+                    this.$set(this.nowGrid[newRow + direction[0]], newCol + direction[1], 5);
+                  }
+                  if (nextCell === 5){
+                    this.$set(this.nowGrid[newRow], newCol, 3);
+                  }
+                  else if (nextCell === 6){
+                    this.$set(this.nowGrid[newRow], newCol, 4);
+                  }
+                  if (this.nowGrid[this.nowPlayerRow][this.nowPlayerCol] === 3){
+                    this.$set(this.nowGrid[this.nowPlayerRow], this.nowPlayerCol, 0);
+                  }
+                  else if (this.nowGrid[this.nowPlayerRow][this.nowPlayerCol] === 4){
+                    this.$set(this.nowGrid[this.nowPlayerRow], this.nowPlayerCol, 2);
+                  }
+                  this.nowPlayerRow = newRow;
+                  this.nowPlayerCol = newCol;
+                }
+              }
+            },
+            check(){
+              let arriveTarget = 1;
+              for (let gridRow of this.nowGrid){
+                for (let gridCell of gridRow){
+                  if (gridCell === 2 || gridCell === 4){
+                    arriveTarget = 0;
+                  }
+                }
+              }
+              if (arriveTarget){
+                alert("恭喜过关！");
+                if (this.gradeNumber === 1 || this.gradeNumber === 2 || this.gradeNumber === 3 || this.gradeNumber === 4){
+                  alert("进入下一关！");
+                }
+                else if (this.gradeNumber === 5){
+                  alert("感谢游玩！")
+                }
+                if (this.gradeNumber === 1){
+                  this.grid = [
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 0, 3, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 2, 0, 5, 0, 1, 1, 1],
+                  [1, 1, 1, 5, 0, 2, 0, 1, 1, 1],
+                  [1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                  ];
+                  this.nowGrid = JSON.parse(JSON.stringify(this.grid));
+                  this.playerRow = 2;
+                  this.playerCol = 4;
+                  this.nowPlayerRow = 2;
+                  this.nowPlayerCol = 4;
+                  this.gradeNumber = 2;
+                }
+                else if (this.gradeNumber === 2){
+                  this.grid = [
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
+                  [1, 1, 1, 0, 0, 0, 1, 1, 1, 1],
+                  [1, 1, 1, 3, 2, 0, 1, 1, 1, 1],
+                  [1, 1, 1, 0, 2, 5, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 5, 0, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 0, 0, 0, 1, 1, 1],
+                  [1, 1, 1, 1, 0, 0, 0, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                  ];
+                  this.nowGrid = JSON.parse(JSON.stringify(this.grid));
+                  this.playerRow = 3;
+                  this.playerCol = 3;
+                  this.nowPlayerRow = 3;
+                  this.nowPlayerCol = 3;
+                  this.gradeNumber = 3;
+                }
+                else if (this.gradeNumber === 3){
+                  this.grid = [
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 3, 0, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 0, 0, 1, 1, 1],
+                  [1, 1, 1, 0, 0, 5, 2, 1, 1, 1],
+                  [1, 1, 1, 0, 0, 5, 2, 1, 1, 1],
+                  [1, 1, 1, 0, 0, 5, 2, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                  ];
+                  this.nowGrid = JSON.parse(JSON.stringify(this.grid));
+                  this.playerRow = 2;
+                  this.playerCol = 5;
+                  this.nowPlayerRow = 2;
+                  this.nowPlayerCol = 5;
+                  this.gradeNumber = 4;
+                }
+                else if (this.gradeNumber === 4){
+                  this.grid = [
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 0, 3, 0, 0, 1, 1, 1],
+                  [1, 1, 1, 0, 1, 2, 1, 1, 1, 1],
+                  [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+                  [1, 1, 1, 1, 5, 5, 0, 1, 1, 1],
+                  [1, 1, 1, 1, 2, 1, 0, 1, 1, 1],
+                  [1, 1, 1, 1, 0, 0, 0, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                  ];
+                  this.nowGrid = JSON.parse(JSON.stringify(this.grid));
+                  this.playerRow = 2;
+                  this.playerCol = 4;
+                  this.nowPlayerRow = 2;
+                  this.nowPlayerCol = 4;
+                  this.gradeNumber = 5;
+                }
+              }
+            },
+            moveUp() {
+              this.movePlayer([-1, 0]);
+            },
+            moveDown() {
+              this.movePlayer([1, 0]);
+            },
+            moveLeft() {
+              this.movePlayer([0, -1]);
+            },
+            moveRight() {
+              this.movePlayer([0, 1]);
+            },
+            handleKeydown(event){
+              switch (event.key) {
+                case 'ArrowLeft': 
+                case 'a': 
+                  this.moveLeft();
+                  this.check();
+                  break;
+                case 'ArrowUp': 
+                case 'w': 
+                  this.moveUp();
+                  this.check();
+                  break;
+                case 'ArrowRight': 
+                case 'd': 
+                  this.moveRight();
+                  this.check();
+                  break;
+                case 'ArrowDown': 
+                case 's': 
+                  this.moveDown();
+                  this.check();
+                  break;
+              }
+            },
+          },
+          setFocus() {
+            this.$refs.container.focus();
+          },
+          mounted() {
+            this.$nextTick(() => {
+              this.$refs.container.focus();
+            });
+          }
+        });
+      </script>
+</body>
+</html>
